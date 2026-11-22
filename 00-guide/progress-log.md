@@ -3,7 +3,9 @@
 > Claude: read this at the start of each session; append at the end.
 
 ## Current position
-**01-cni → Day 2 (`01-cni/lessons/day02-routing-iptables-conntrack.md`) → start from Step 1**
+**01-cni → Day 1 assignment (`01-cni/labs/day01-assignment/README.md`) in progress → then Day 2**
+
+Assignment (100 pts): A podnet.sh (check.sh grader) · B second subnet + Pod-to-Pod no-NAT trap · C 13 hidden faults via fault.sh (answer key inside — don't show user) · D investigations · E closed-book. When the user asks to grade: read answers.md, run `sudo ./check.sh [--part-b]` in the VM. All faults and graders were verified in the VM on 2026-11-22. Reference solution isn't in the repo.
 
 VM state: clean (no netns, no br0, FORWARD/POSTROUTING back to Docker defaults, `ip_forward=1`).
 Docker sets FORWARD policy DROP and ip_forward=1. Labs that route through the host need FORWARD accept rules (see the Day 1 lesson note).
