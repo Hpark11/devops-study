@@ -74,6 +74,13 @@ sudo iptables -t nat -A POSTROUTING -s 10.244.1.0/24 ! -o br0 -j MASQUERADE
 sudo ip netns exec pod-a ping -c 2 8.8.8.8
 ```
 
+> ⚠️ **Docker가 설치된 VM에서는:** Docker가 이미 `ip_forward=1`로 바꾸고 FORWARD 체인 정책을 **DROP**으로 설정함 → 위 명령만으로는 timeout. 아래 두 규칙을 추가해야 함 (`iptables -L FORWARD -v -n`의 policy DROP 카운터로 확인):
+> ```bash
+> sudo iptables -I FORWARD 1 -i br0 -j ACCEPT
+> sudo iptables -I FORWARD 2 -o br0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+> ```
+> 한 번만 실행할 것. `-I`는 중복 규칙을 그대로 추가함 (`iptables -C`로 먼저 확인).
+
 ### 7) 패킷 관찰
 ```bash
 # 터미널 1
@@ -89,6 +96,10 @@ ip neigh                      # ARP 테이블
 sudo ip netns del pod-a; sudo ip netns del pod-b
 sudo ip link del br0
 sudo iptables -t nat -D POSTROUTING -s 10.244.1.0/24 ! -o br0 -j MASQUERADE
+# Docker 환경에서 FORWARD 규칙을 추가했다면:
+sudo iptables -D FORWARD -i br0 -j ACCEPT
+sudo iptables -D FORWARD -o br0 -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+sudo iptables -S FORWARD   # 확인
 ```
 
 ## 💥 Break-it
@@ -100,7 +111,7 @@ sudo iptables -t nat -D POSTROUTING -s 10.244.1.0/24 ! -o br0 -j MASQUERADE
 | `veth-a`를 down | pod-a만 고립 | 랜선이 뽑힌 것과 같음 |
 
 ## ✅ 확인 질문
-- [ ] 실제 Kubernetes 노드에서 `ip link`를 쳤을 때 보이는 `vethXXXX`는 어느 Pod와 짝인지 어떻게 찾는가? (힌트: `ip link`의 `@ifN`, Pod 안 `cat /sys/class/net/eth0/iflink`)
+- [x] 실제 Kubernetes 노드에서 `ip link`를 쳤을 때 보이는 `vethXXXX`는 어느 Pod와 짝인지 어떻게 찾는가? (힌트: `ip link`의 `@ifN`, Pod 안 `cat /sys/class/net/eth0/iflink`)
 - [ ] 이 실습의 각 단계를 CNI 플러그인 종류(main / ipam / meta)에 대응시켜 보라
 
 ## 📝 기록

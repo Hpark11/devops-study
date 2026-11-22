@@ -3,28 +3,31 @@
 > Claude: read this at the start of each session; append at the end.
 
 ## Current position
-**01-cni → Day 1 (`01-cni/lessons/day01-netns-veth-bridge.md`) → next: Step 3 (veth pair)**
+**01-cni → Day 2 (`01-cni/lessons/day02-routing-iptables-conntrack.md`) → start from Step 1**
 
-State in the VM right now (may persist unless the VM was restarted — netns/bridge are lost on reboot):
-- netns `pod-a`, `pod-b` created; `lo` set UP in pod-a
-- bridge `br0` created, `10.244.1.1/24`, UP but `NO-CARRIER` (no ports yet)
-- No veth yet. Check with `ip netns list; ip link show br0` before continuing; if gone, redo steps 1–2 quickly.
+VM state: clean (no netns, no br0, FORWARD/POSTROUTING back to Docker defaults, `ip_forward=1`).
+Docker sets FORWARD policy DROP and ip_forward=1. Labs that route through the host need FORWARD accept rules (see the Day 1 lesson note).
 
-Pending predictions for Step 3 (ask user before running):
-- (a) After `ip link set eth0-a netns pod-a`, does `eth0-a` still appear in host `ip link`?
-- (b) After attaching veth-a to br0 and bringing it up, does br0 still show `NO-CARRIER`?
-- Point out the `@ifN` suffix (how to map host veth ↔ Pod).
-
-Remaining Day 1: Step 4 (IP + default route), 5 (ping pod↔pod), 6 (ip_forward + MASQUERADE — key question: without MASQUERADE, packet leaves but why no reply?), 7 (tcpdump on br0: ARP before ICMP; `bridge fdb`, `ip neigh`), Break-it table, cleanup, closed-book note.
+Carry-over for Day 2 (weak spots from the Day 1 closed-book answer):
+- `Destination Host Unreachable` = ARP failed for an on-link dst/gateway. User forgot this, so re-test it.
+- User omitted IPAM/default route/ip_forward/MASQUERADE as explicit steps. Revisit the full chain.
+- CNI plugin types (main/ipam/meta) mapping is still open (Day 3).
 
 ## Log
 ### 2026-11-20 — Day 0 (environment)
 - Checked Mac resources (24 GB / 10 cores); freed disk to 120 GB → VM sized 4 CPU / 8 GB / 60 GB
 - Installed Lima VM + tools; hit docker.sock permission denied → fixed via VM restart
 - Verified kind cluster creation; learned: fresh node is `NotReady` until CNI is ready; `localhost:8080 refused` = kubectl has no context (cluster was deleted by the smoke test)
-- Git init (step 6): **not confirmed** — ask user
+- Git: repo initialized (commits `9080da7`, `f101d35`)
 
-### 2026-11-21 — Day 1 (in progress)
-- Step 1 ✅ Prediction "one interface" correct: new netns has only `lo`, DOWN, empty route table. Learned: `lo` must be brought up (CNI `loopback` plugin), pause container holds the netns.
-- Step 2 ✅ Host can ping 10.244.1.1 (own address via local table, works even with NO-CARRIER); pod-a gets `Network is unreachable` (no route). Learned error-type triage: unreachable vs host unreachable vs timeout vs refused.
-- Concepts explained so far: what Lima is, limactl flags, `ip link` vs `ip addr` vs `ip route`.
+### 2026-11-21 → 22 — Day 1 ✅ netns · veth · bridge
+- Step 1: new netns has only `lo` (DOWN), empty route table; pause container holds the netns.
+- Step 2 (redone step by step): admin vs. oper state; `local` table entry exists even when admin-DOWN (kube-ipvs0 analogy); prefix route only after admin UP, `linkdown` without carrier; `ip rule` local→main; bridge MAC is persistent (udev policy).
+- Step 3: veth pair = one command, two ends; moving removes it from the host; `@ifN` cross-reference; `M-DOWN`; LOWERLAYERDOWN chain → br0 NO-CARRIER; after up: LOWER_UP, port `forwarding` (STP off). Bridge carrier = OR of ports.
+- Step 4: connected route is the network (`10.244.1.0/24`), not the address; pod↔pod works without a gateway (ttl 64, first ping slower due to ARP); no default → `Network is unreachable`.
+- Step 6: Docker's FORWARD policy DROP blocked forwarding (counter +3); added FORWARD accept rules; tcpdump showed src 10.244.1.2 leaves unNATed (user predicted 10.244.1.1, corrected: routing never rewrites IPs); MASQUERADE → src 192.168.5.15; read the conntrack tuples (NAT = non-mirrored reply tuple).
+- Step 7: ARP broadcast → unicast reply → ICMP; dst MAC = pod-b (user predicted br0, corrected: longest prefix match picks the on-link route, no `via`); fdb aging (300 s) vs. neigh REACHABLE/STALE.
+- Break-it: veth-a down (routes `linkdown`, neigh flushed, timeout); no default route (`Network is unreachable`, pod↔pod OK); ip_forward=0 (timeout, FORWARD counters flat, dropped before FORWARD).
+- Mistakes to watch: running lab commands on macOS (check `lima-devops` prompt); typing `link` instead of `ip link` (coreutils `link`); confusing bridge port state vs. neigh state.
+- Closed-book note: `01-cni/notes/2026-11-22-netns-veth.md`. Lesson file updated with the Docker FORWARD note.
+- User wants a polished-English version of every answer (saved to memory).

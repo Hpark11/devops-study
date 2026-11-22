@@ -19,7 +19,7 @@
 
 | Day | 주제 | 가이드 | 완료 |
 |:---:|---|---|:---:|
-| 1 | netns · veth · bridge | [day01](./lessons/day01-netns-veth-bridge.md) | ⬜ |
+| 1 | netns · veth · bridge | [day01](./lessons/day01-netns-veth-bridge.md) | ✅ |
 | 2 | 라우팅 · iptables 체인 · conntrack | [day02](./lessons/day02-routing-iptables-conntrack.md) | ⬜ |
 | 3 | CNI 스펙 + **bash CNI 플러그인 직접 구현** ⭐ | [day03](./lessons/day03-cni-spec-bash-plugin.md) | ⬜ |
 | 4 | Overlay(VXLAN) vs Native Routing · MTU | [day04](./lessons/day04-overlay-vs-routing.md) | ⬜ |
