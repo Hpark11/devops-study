@@ -15,6 +15,7 @@ CNI (Cilium/eBPF) · CoreDNS · Istio (sidecar/ambient) · Argo Workflows · Pro
 - Host: MacBook Pro, Apple Silicon (arm64), 10 cores, 24 GB RAM, ~120 GB free disk
 - Lab VM: **Lima** VM `devops` (Ubuntu 24.04, kernel 6.8, vz, 4 CPU / 8 GB / 60 GB, home mounted writable)
   - Enter: `limactl shell devops` · run one command: `limactl shell devops -- <cmd>`
+  - Inside the VM, `~` is `/home/hspark.guest` (NOT the Mac home). The repo is at the same absolute path as on macOS: `/Users/hspark/Documents/hyunsoo/study/devops-study`. Always give the user full paths for `cd`.
   - Installed: iproute2, iptables (nf_tables), nftables, conntrack, tcpdump, iperf3, bpftool 7.4, bpftrace, clang, Docker, kind v0.34, kubectl v1.37, helm v3.22
   - Docker group fix needed a VM restart (Lima reuses SSH sessions)
 - All labs that touch the kernel run **inside the VM**, never on macOS.

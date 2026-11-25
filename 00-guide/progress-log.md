@@ -3,7 +3,19 @@
 > Claude: read this at the start of each session; append at the end.
 
 ## Current position
-**01-cni → Day 1 assignment (`01-cni/labs/day01-assignment/README.md`) in progress → then Day 2**
+> 🐝 **Priority until 2026-12-01: Buzzvil pre-start sprint** → `11-buzzvil-onboarding/lessons/p1-eks-vpc-cni.md` (P1 on Mon 11-23 … P8 on Mon 11-30; Buzzvil start assumed Tue 12-01).
+> The `01-cni` Day 1 assignment below may be finished first if the user wants (P1 builds on it); `01-cni` Day 2+ resumes in January per `11-buzzvil-onboarding/notes/first-90-days.md`.
+
+**01-cni → Day 2 ✅ (2026-11-25) → next: Day 3 (`01-cni/lessons/day03-cni-spec-bash-plugin.md`), or the Buzzvil sprint (ask the user which)**
+
+Day 2 done: `ip route get`, TRACE via xtables-monitor, fake Service DNAT + same-bridge hairpin failure (RST) fixed with br_netfilter, conntrack -E lifecycle, iptables vs nft, conntrack-full Break-it (also broke sudo's hostname DNS). Note: `01-cni/notes/2026-11-25-routing-iptables-conntrack.md`.
+Day 2 weak spots for review: user first described the conntrack entry as the hop-by-hop path (not 2 tuples); thought replies return "the way they came" (routing is per-packet); swapped `Network is unreachable` vs `Destination Host Unreachable` in the warm-up (corrected); closed-book answer missed FORWARD/POSTROUTING and conntrack de-NAT as the reason the reply shows the ClusterIP.
+VM state after Day 2: podnet.sh topology still UP (lab0, ns1–ns3, its 3 iptables rules); `br_netfilter` loaded with bridge-nf-call-iptables=1 (resets on reboot); DNAT test rule removed; nf_conntrack_max restored to 262144.
+
+**2026-11-24: user chose to move on to Day 2.** Assignment Part A is complete (design decisions written; 2a/3b/3c completed with Claude, marked 🤝). Parts B–E are **deferred**; offer them again later. Day 2 reuses the podnet.sh topology (lab0 10.88.0.1, ns1–ns3 = .11–.13) instead of the lesson's 10.244.1.x.
+
+Assignment status: **Part A code done 2026-11-23** (podnet.sh: up/down idempotent, 42/0, down silent, ip_forward left at 1). Next: write Part A in answers.md (check output + 3 design decisions), then Part B.
+Bugs user hit and fixed in Part A (good recap material): `ip link netns` typo hidden by a silenced guard; `2.&1` → background job; `$(ip)` vs `$ip`; `via $ip` (own IP as gateway); MASQUERADE -C/-A halves mismatched (Day 1 values); `conntract`; `ip netns show NAME` always exits 0; leftover hand-added iptables rules making checks pass falsely; running without sudo / from VM home copy.
 
 Assignment (100 pts): A podnet.sh (check.sh grader) · B second subnet + Pod-to-Pod no-NAT trap · C 13 hidden faults via fault.sh (answer key inside — don't show user) · D investigations · E closed-book. When the user asks to grade: read answers.md, run `sudo ./check.sh [--part-b]` in the VM. All faults and graders were verified in the VM on 2026-11-22. Reference solution isn't in the repo.
 
@@ -33,3 +45,8 @@ Carry-over for Day 2 (weak spots from the Day 1 closed-book answer):
 - Mistakes to watch: running lab commands on macOS (check `lima-devops` prompt); typing `link` instead of `ip link` (coreutils `link`); confusing bridge port state vs. neigh state.
 - Closed-book note: `01-cni/notes/2026-11-22-netns-veth.md`. Lesson file updated with the Docker FORWARD note.
 - User wants a polished-English version of every answer (saved to memory).
+
+### 2026-11-22 — Buzzvil track added
+- hspark accepted an offer from Buzzvil (DevOps team), starting December 2026.
+- Added `11-buzzvil-onboarding/`: README (gap analysis, 8-day sprint, self-check), `notes/buzzvil-stack-map.md`, `notes/first-90-days.md`, lessons P1–P8, starter chart `labs/charts/buzz-service/` (PDB left as the user's TODO in P5; chart render verified with a Go text/template harness).
+- Cluster plan: P1 `p1`, P2 `p2`, P3–P7 one cluster `buzz`, P8 `p8`.

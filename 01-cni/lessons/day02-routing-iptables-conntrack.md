@@ -37,5 +37,7 @@
 - `sysctl net.netfilter.nf_conntrack_max=100` 로 낮추고 부하 → `dmesg`에 `table full` 확인
 
 ## ✅ 확인 질문
-- [ ] Service로 보낸 요청의 **응답**은 왜 다시 ClusterIP에서 온 것처럼 보이는가?
-- [ ] conntrack 엔트리가 꽉 차면 어떤 연결부터 실패하는가?
+- [x] Service로 보낸 요청의 **응답**은 왜 다시 ClusterIP에서 온 것처럼 보이는가?
+- [x] conntrack 엔트리가 꽉 차면 어떤 연결부터 실패하는가?
+
+> 💡 2026-11-25 실습 메모: 백엔드가 **같은 bridge**에 있으면 `br_netfilter` 없이는 응답이 conntrack을 우회해 RST로 실패함 (tcpdump로 확인). `nf_conntrack_max=100` Break-it 시 sudo의 hostname DNS 조회까지 실패함 (`/etc/hosts`에 lima-devops 없음).

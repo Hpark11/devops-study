@@ -6,7 +6,7 @@
 This isn't a repeat of the lesson. You'll **script** the setup, **extend** it to two subnets, **diagnose hidden faults** with no hints, and **prove** claims with evidence.
 
 ## Rules
-- Work **inside the VM**: `limactl shell devops`, then `cd ~/Documents/hyunsoo/study/devops-study/01-cni/labs/day01-assignment`. The repo is mounted at the same path. Check that your prompt says `lima-devops`.
+- Work **inside the VM**: `limactl shell devops`, then `cd /Users/hspark/Documents/hyunsoo/study/devops-study/01-cni/labs/day01-assignment`. The repo is mounted at the same path as on macOS. Use the **full** path: inside the VM, `~` is `/home/hspark.guest`, not your Mac home. Check that your prompt says `lima-devops`, and run every script with `sudo`.
 - `man ip`, `man iptables`, `ip <cmd> help`, and `--help` are allowed. Copy-pasting from the Day 1 lesson is **not** allowed for Part A. Write it yourself.
 - **Don't read `fault.sh`.** It *is* the answer key for Part C.
 - Write everything in **`answers.md`** (the template is in this folder). Paste real command output as evidence. A claim without output gets half credit.
